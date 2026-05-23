@@ -1426,16 +1426,28 @@ def _patch_context_refiner_mask_modules(dm, stats):
                             forced_cap_mask, cap_feats
                         )
                         substituted = False
+                        
+                        # Helper to ensure the replacement mask matches the expected attention shape
+                        def _align_mask(orig_m):
+                            if torch.is_tensor(orig_m):
+                                try:
+                                    return replacement_mask.view(orig_m.shape)
+                                except Exception:
+                                    pass
+                            if replacement_mask.ndim == 2:
+                                return replacement_mask.unsqueeze(1).unsqueeze(1)
+                            return replacement_mask
+
                         if len(args_list) >= 2:
                             if args_list[1] is None or torch.is_tensor(args_list[1]):
-                                args_list[1] = replacement_mask
+                                args_list[1] = _align_mask(args_list[1])
                                 substituted  = True
                         else:
                             for key in ('cap_mask', 'mask', 'x_mask'):
                                 if key in kwargs and (
                                     kwargs[key] is None or torch.is_tensor(kwargs[key])
                                 ):
-                                    kwargs[key] = replacement_mask
+                                    kwargs[key] = _align_mask(kwargs[key])
                                     substituted = True
                                     break
                         if substituted:
