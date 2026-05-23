@@ -2147,7 +2147,7 @@ class UntwistingRoPE:
             rf_cache_hit = False
             rf_cond_mode = 'not-connected'
             ref_mode = 'target-only'
-            should_print = _coerce_bool(getattr(stats, 'rf_verbose', False)) and (call_n <= 4 or call_n % 8 == 0)
+            should_print = _coerce_bool(getattr(stats, 'rf_verbose', False))
 
             if rf_active and torch.is_tensor(ref_clean_cpu):
                 try:
@@ -2364,7 +2364,7 @@ class UntwistingRoPE:
                 if should_print:
                     print(
                         f'{_PREFIX}   target_pred mean={target_pred.mean().item():.4f}  std={target_pred.std().item():.4f}\n'
-                        f'{_PREFIX}   ref_pred    mean={ref_pred.mean().item():.4f}  std={ref_pred.std().item():.4f}  (discarded for sampler)'
+                        f'{_PREFIX}   ref_pred    mean={ref_pred.mean().item():.4f}  std={ref_pred.std().item():.4f}'
                     )
                 return target_pred
 
