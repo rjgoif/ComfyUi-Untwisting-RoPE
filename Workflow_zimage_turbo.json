@@ -1,103 +1,9 @@
 {
   "id": "44259803-f9d6-4eb1-a94a-75b8213649d0",
   "revision": 0,
-  "last_node_id": 621,
-  "last_link_id": 1542,
+  "last_node_id": 622,
+  "last_link_id": 1548,
   "nodes": [
-    {
-      "id": 538,
-      "type": "SamplerCustomAdvancedAllSteps",
-      "pos": [
-        1811.2191450889638,
-        1652.3808703628831
-      ],
-      "size": [
-        292.3169921875,
-        326
-      ],
-      "flags": {},
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "noise",
-          "type": "NOISE",
-          "link": 1317
-        },
-        {
-          "name": "guider",
-          "type": "GUIDER",
-          "link": 1401
-        },
-        {
-          "name": "sampler",
-          "type": "SAMPLER",
-          "link": 1319
-        },
-        {
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 1320
-        },
-        {
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 1518
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "LATENT",
-          "links": [
-            1353
-          ]
-        },
-        {
-          "name": "denoised_output",
-          "type": "LATENT",
-          "links": null
-        },
-        {
-          "name": "all_steps_latents",
-          "type": "LATENT",
-          "links": []
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SamplerCustomAdvancedAllSteps"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 617,
-      "type": "PreviewImage",
-      "pos": [
-        2351.724928673295,
-        1586.0476371856953
-      ],
-      "size": [
-        554.574171917292,
-        515.9512940840721
-      ],
-      "flags": {},
-      "order": 22,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 1540
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.21.1",
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
     {
       "id": 265,
       "type": "ImageScaleToTotalPixelsX",
@@ -294,7 +200,7 @@
           "name": "GUIDER",
           "type": "GUIDER",
           "links": [
-            1401
+            1544
           ]
         }
       ],
@@ -350,7 +256,7 @@
           "name": "SAMPLER",
           "type": "SAMPLER",
           "links": [
-            1319
+            1545
           ]
         }
       ],
@@ -383,7 +289,7 @@
           "name": "NOISE",
           "type": "NOISE",
           "links": [
-            1317
+            1543
           ]
         }
       ],
@@ -423,7 +329,7 @@
           "name": "SIGMAS",
           "type": "SIGMAS",
           "links": [
-            1320
+            1546
           ]
         }
       ],
@@ -476,7 +382,7 @@
           "type": "LATENT",
           "slot_index": 0,
           "links": [
-            1518
+            1547
           ]
         }
       ],
@@ -497,48 +403,6 @@
         1024,
         1
       ]
-    },
-    {
-      "id": 262,
-      "type": "VAEDecode",
-      "pos": [
-        2161.7855877231527,
-        1538.8662956572043
-      ],
-      "size": [
-        140,
-        62.2083101328426
-      ],
-      "flags": {},
-      "order": 21,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 1353
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": 507
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            1540
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.21.0",
-        "Node name for S&R": "VAEDecode"
-      },
-      "widgets_values": []
     },
     {
       "id": 261,
@@ -841,8 +705,6 @@
         }
       ],
       "properties": {
-        "aux_id": "BigStationW/ComfyUi-Untwisting-RoPE",
-        "ver": "c9136fcced444ea84778a25a37a2b45371ea06a5",
         "Node name for S&R": "RFInversion"
       },
       "widgets_values": [
@@ -892,8 +754,6 @@
         }
       ],
       "properties": {
-        "aux_id": "BigStationW/ComfyUi-Untwisting-RoPE",
-        "ver": "c9136fcced444ea84778a25a37a2b45371ea06a5",
         "Node name for S&R": "UntwistingRoPE"
       },
       "widgets_values": [
@@ -907,6 +767,139 @@
         0.5,
         false
       ]
+    },
+    {
+      "id": 622,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        1847.301918707523,
+        1554.3864451535942
+      ],
+      "size": [
+        293.89992513107234,
+        456.72464032296625
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 1543
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 1544
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 1545
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 1546
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 1547
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            1548
+          ]
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.21.1",
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 617,
+      "type": "PreviewImage",
+      "pos": [
+        2439.855735728809,
+        1482.3290866342313
+      ],
+      "size": [
+        554.574171917292,
+        515.9512940840721
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1540
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.21.1",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 262,
+      "type": "VAEDecode",
+      "pos": [
+        2196.558250513236,
+        1538.8662956572043
+      ],
+      "size": [
+        140,
+        62.2083101328426
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 1548
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 507
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1540
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.21.0",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -951,60 +944,12 @@
       "VAE"
     ],
     [
-      1317,
-      167,
-      0,
-      538,
-      0,
-      "NOISE"
-    ],
-    [
-      1319,
-      229,
-      0,
-      538,
-      2,
-      "SAMPLER"
-    ],
-    [
-      1320,
-      31,
-      0,
-      538,
-      3,
-      "SIGMAS"
-    ],
-    [
-      1353,
-      538,
-      0,
-      262,
-      0,
-      "LATENT"
-    ],
-    [
       1400,
       259,
       0,
       559,
       2,
       "CONDITIONING"
-    ],
-    [
-      1401,
-      559,
-      0,
-      538,
-      1,
-      "GUIDER"
-    ],
-    [
-      1518,
-      282,
-      0,
-      538,
-      4,
-      "LATENT"
     ],
     [
       1526,
@@ -1101,16 +1046,64 @@
       259,
       0,
       "CLIP"
+    ],
+    [
+      1543,
+      167,
+      0,
+      622,
+      0,
+      "NOISE"
+    ],
+    [
+      1544,
+      559,
+      0,
+      622,
+      1,
+      "GUIDER"
+    ],
+    [
+      1545,
+      229,
+      0,
+      622,
+      2,
+      "SAMPLER"
+    ],
+    [
+      1546,
+      31,
+      0,
+      622,
+      3,
+      "SIGMAS"
+    ],
+    [
+      1547,
+      282,
+      0,
+      622,
+      4,
+      "LATENT"
+    ],
+    [
+      1548,
+      622,
+      0,
+      262,
+      0,
+      "LATENT"
     ]
   ],
   "groups": [],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.31384283767210036,
+      "scale": 0.5559917313492245,
       "offset": [
-        513.5918682244194,
-        -578.1860692394496
+        -770.4004787316312,
+        -1113.416929579258
       ]
     },
     "frontendVersion": "1.43.18",
