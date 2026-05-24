@@ -838,9 +838,10 @@
         }
       ],
       "properties": {
-        "cnr_id": "untwistingrope",
+        "aux_id": "BigStationW/ComfyUi-Untwisting-RoPE",
         "ver": "c9136fcced444ea84778a25a37a2b45371ea06a5",
-        "Node name for S&R": "RFInversion"
+        "Node name for S&R": "RFInversion",
+        "cnr_id": "untwistingrope"
       },
       "widgets_values": [
         "rf_gamma_rk2",
@@ -889,16 +890,17 @@
         }
       ],
       "properties": {
-        "cnr_id": "untwistingrope",
+        "aux_id": "BigStationW/ComfyUi-Untwisting-RoPE",
         "ver": "c9136fcced444ea84778a25a37a2b45371ea06a5",
-        "Node name for S&R": "UntwistingRoPE"
+        "Node name for S&R": "UntwistingRoPE",
+        "cnr_id": "untwistingrope"
       },
       "widgets_values": [
         50,
         1.05,
         0,
         1,
-        3.5,
+        3,
         0,
         999,
         0.5,
@@ -1104,10 +1106,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6115909044841505,
+      "scale": 0.6727499949325658,
       "offset": [
-        -42.2882766828109,
-        -699.5896585883704
+        -342.18542102258266,
+        -749.4204079249001
       ]
     },
     "frontendVersion": "1.43.18",
