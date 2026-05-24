@@ -1,8 +1,8 @@
 {
   "id": "44259803-f9d6-4eb1-a94a-75b8213649d0",
   "revision": 0,
-  "last_node_id": 626,
-  "last_link_id": 1553,
+  "last_node_id": 628,
+  "last_link_id": 1557,
   "nodes": [
     {
       "id": 333,
@@ -609,14 +609,14 @@
           "name": "model",
           "type": "MODEL",
           "links": [
-            1530
+            1554
           ]
         },
         {
           "name": "rf_inversion",
           "type": "LATENT",
           "links": [
-            1537
+            1555
           ]
         }
       ],
@@ -767,29 +767,6 @@
       ]
     },
     {
-      "id": 611,
-      "type": "Note",
-      "pos": [
-        1138.7779877296477,
-        976.9595237013522
-      ],
-      "size": [
-        289.0740052806825,
-        112.57343506692268
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {},
-      "widgets_values": [
-        "The only relevant values to change are :\n\n- high_scale_start: (between 1.0 and 1.15) \n- low_scale_end: (between 1.0 and 1.5)"
-      ],
-      "color": "#c09430",
-      "bgcolor": "rgba(24,24,27,.9)"
-    },
-    {
       "id": 559,
       "type": "CFGGuider",
       "pos": [
@@ -807,7 +784,7 @@
         {
           "name": "model",
           "type": "MODEL",
-          "link": 1531
+          "link": 1556
         },
         {
           "name": "positive",
@@ -856,7 +833,7 @@
         {
           "name": "model",
           "type": "MODEL",
-          "link": 1532
+          "link": 1557
         }
       ],
       "outputs": [
@@ -880,15 +857,15 @@
       ]
     },
     {
-      "id": 605,
+      "id": 628,
       "type": "UntwistingRoPE",
       "pos": [
-        1130.3924191912731,
-        1145.830275642781
+        1155.6059471633528,
+        1165.8582305707398
       ],
       "size": [
-        300.72558066302486,
-        275.79687400716375
+        270,
+        246
       ],
       "flags": {},
       "order": 17,
@@ -897,13 +874,13 @@
         {
           "name": "model",
           "type": "MODEL",
-          "link": 1530
+          "link": 1554
         },
         {
           "name": "rf_inversion",
           "shape": 7,
           "type": "LATENT",
-          "link": 1537
+          "link": 1555
         }
       ],
       "outputs": [
@@ -911,14 +888,14 @@
           "name": "model",
           "type": "MODEL",
           "links": [
-            1531,
-            1532
+            1556,
+            1557
           ]
         }
       ],
       "properties": {
         "cnr_id": "untwistingrope",
-        "ver": "c9136fcced444ea84778a25a37a2b45371ea06a5",
+        "ver": "9fb6a19e82077dc54ddb120f202d474d01497cf7",
         "Node name for S&R": "UntwistingRoPE"
       },
       "widgets_values": [
@@ -927,10 +904,33 @@
         0,
         1,
         1.5,
-        0,
+        0.5,
         "0-999",
         false
       ]
+    },
+    {
+      "id": 611,
+      "type": "Note",
+      "pos": [
+        1156.1643191246894,
+        990.1491865908769
+      ],
+      "size": [
+        289.0740052806825,
+        112.57343506692268
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "The only relevant values to change are :\n\n- high_scale_start: (between 1.0 and 1.15) \n- low_scale_end: (between 1.0 and 1.5)"
+      ],
+      "color": "#c09430",
+      "bgcolor": "rgba(24,24,27,.9)"
     }
   ],
   "links": [
@@ -975,30 +975,6 @@
       "LATENT"
     ],
     [
-      1530,
-      603,
-      0,
-      605,
-      0,
-      "MODEL"
-    ],
-    [
-      1531,
-      605,
-      0,
-      559,
-      0,
-      "MODEL"
-    ],
-    [
-      1532,
-      605,
-      0,
-      31,
-      0,
-      "MODEL"
-    ],
-    [
       1534,
       607,
       0,
@@ -1013,14 +989,6 @@
       603,
       2,
       "CONDITIONING"
-    ],
-    [
-      1537,
-      603,
-      1,
-      605,
-      1,
-      "LATENT"
     ],
     [
       1539,
@@ -1125,16 +1093,48 @@
       259,
       0,
       "CLIP"
+    ],
+    [
+      1554,
+      603,
+      0,
+      628,
+      0,
+      "MODEL"
+    ],
+    [
+      1555,
+      603,
+      1,
+      628,
+      1,
+      "LATENT"
+    ],
+    [
+      1556,
+      628,
+      0,
+      559,
+      0,
+      "MODEL"
+    ],
+    [
+      1557,
+      628,
+      0,
+      31,
+      0,
+      "MODEL"
     ]
   ],
   "groups": [],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6115909044841512,
+      "scale": 0.5559917313492286,
       "offset": [
-        -583.2183268220074,
-        -791.6133053559424
+        -491.41396919490944,
+        -604.0997221749435
       ]
     },
     "frontendVersion": "1.43.18",
