@@ -348,7 +348,8 @@ def patch_attention_modules(dm: Any, stats: Any, helpers: dict[str, Any] | None 
                     return orig(x, context, rope_emb=rope_emb, transformer_options=transformer_options)
 
                 block_idx = int(module_block_idx)
-                if not (int(cfg["start_block"]) <= block_idx <= int(cfg["end_block"])):
+                active_blocks = cfg.get("active_blocks", None)
+                if active_blocks is not None and len(active_blocks) > 0 and block_idx not in active_blocks:
                     return orig(x, context, rope_emb=rope_emb, transformer_options=transformer_options)
 
                 target_bsz = int(cfg.get("cross_batch_target_batch", 0))
