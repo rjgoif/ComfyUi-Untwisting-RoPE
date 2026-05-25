@@ -2131,7 +2131,7 @@ class UntwistingRoPE:
                 'adain_strength': ('FLOAT', {'default': 0.5, 'min': 0.0, 'max': 1.0, 'step': 0.01}),
                 'blocks': ('STRING', {'default': '0-999', 'tooltip': 'Specify block ranges to patch, e.g -> 0-8, 28-37'}),
                 'adain_on_v': ('BOOLEAN', {
-                    'default': False,
+                    'default': True,
                     'tooltip': 'Also apply AdaIN to value/V activations. Off keeps the previous Q/K-only behavior.',
                 }),
                 'verbose': ('BOOLEAN', {'default': False}),
