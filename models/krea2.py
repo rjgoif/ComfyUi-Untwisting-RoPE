@@ -3,9 +3,15 @@ from __future__ import annotations
 """Krea 2 adapter for ComfyUi-Untwisting-RoPE.
 
 Single-stream MMDiT: fused text+image tokens processed by blocks.N.attn.
-Style transfer mirrors other adapters: target Q attends to target K/V plus
-scaled reference-image K/V; shared QKV and attention-output effects are
+Style transfer: target Q attends to target K/V plus a weighted blend of N
+reference image K/V streams; shared QKV and attention-output effects are
 delegated to the top-level UntwistingRoPE helpers.
+
+Multi-reference blending: cfg["num_ref_streams"] = N and
+cfg["blend_weights"] = [w0, ..., w_{N-1}] (normalized, sum=1.0) control
+how N reference streams are weighted before injection. Batch layout is
+[target x target_bsz, ref_0 x target_bsz, ..., ref_{N-1} x target_bsz].
+Single-reference (N=1) is the default and matches prior behavior exactly.
 
 imglen injection: dm.txtmlp.forward is patched to store txtlen on dm after
 the text fusion step. The block-level patch reads this and injects
@@ -424,16 +430,6 @@ def patch_attention_modules(
                     # GQA expand before shared effects so helpers see full heads.
                     k, v = _expand_kv_heads(k, v, q_heads)
 
-                    # Shared AdaIN/cosine effects on image tokens, BHSD layout.
-                    q, k, v = apply_qkv_shared_effects(
-                        q, k, v,
-                        cfg,
-                        target_bsz,
-                        module_name,
-                        layout="BHSD",
-                        token_ranges=token_ranges,
-                    )
-
                     # Frequency scale vector for reference K modulation.
                     progress = float(cfg.get("progress", 0.0))
                     high_scale = _lerp(
@@ -449,13 +445,68 @@ def patch_attention_modules(
                         k.device, k.dtype, runtime_cfg=cfg,
                     ).view(1, 1, 1, head_dim)
 
-                    # Target attends to its own K/V plus scaled reference image K/V.
-                    # V is left unscaled — only K frequency content is modulated.
-                    ref_k_img = k[target_bsz:target_bsz * 2, :, img_s:img_e, :] * scale_vec
-                    ref_v_img = v[target_bsz:target_bsz * 2, :, img_s:img_e, :]
+                    # Multi-reference round-robin K/V injection.
+                    # Batch layout: [target x target_bsz, ref_0 x target_bsz, ..., ref_{N-1} x target_bsz]
+                    # cfg["num_ref_streams"] = N, cfg["blend_weights"] = [w0, ..., w_{N-1}] summing to 1.
+                    num_refs = int(cfg.get("num_ref_streams", 1))
+                    blend_weights = cfg.get("blend_weights", None)
+                    if not blend_weights or len(blend_weights) != num_refs:
+                        blend_weights = [1.0 / num_refs] * num_refs
 
-                    k_t = torch.cat([k[:target_bsz], ref_k_img], dim=2)
-                    v_t = torch.cat([v[:target_bsz], ref_v_img], dim=2)
+                    # Blend mode: weighted_sum or round_robin.
+                    # Shared effects (AdaIN) always use weighted blend regardless of mode.
+                    blend_mode = cfg.get("blend_mode", "round_robin")
+                    robin_ref = block_idx % num_refs if (num_refs > 1 and blend_mode == "round_robin") else 0
+
+                    # Weighted sum for shared effects — AdaIN sees blended reference.
+                    ref_k_blend_full = None
+                    ref_v_blend_full = None
+                    for ref_i in range(num_refs):
+                        w = float(blend_weights[ref_i])
+                        ref_start = target_bsz * (ref_i + 1)
+                        ref_end = target_bsz * (ref_i + 2)
+                        ref_k_i = k[ref_start:ref_end, :, :, :] * w
+                        ref_v_i = v[ref_start:ref_end, :, :, :] * w
+                        if ref_k_blend_full is None:
+                            ref_k_blend_full = ref_k_i
+                            ref_v_blend_full = ref_v_i
+                        else:
+                            ref_k_blend_full = ref_k_blend_full + ref_k_i
+                            ref_v_blend_full = ref_v_blend_full + ref_v_i
+
+                    # Build a synthetic [target, blended_ref] batch for shared effects.
+                    k_for_shared = torch.cat([k[:target_bsz], ref_k_blend_full], dim=0)
+                    v_for_shared = torch.cat([v[:target_bsz], ref_v_blend_full], dim=0)
+                    q_for_shared = torch.cat([q[:target_bsz], q[target_bsz:target_bsz*2]], dim=0)
+
+                    # Shared AdaIN/cosine effects on image tokens, BHSD layout.
+                    q_for_shared, k_for_shared, v_for_shared = apply_qkv_shared_effects(
+                        q_for_shared, k_for_shared, v_for_shared,
+                        cfg,
+                        target_bsz,
+                        module_name,
+                        layout="BHSD",
+                        token_ranges=token_ranges,
+                    )
+                    # Extract updated target Q/K/V after shared effects.
+                    q = torch.cat([q_for_shared[:target_bsz], q[target_bsz:]], dim=0)
+
+                    if blend_mode == "round_robin" and num_refs > 1:
+                        # Round-robin: this block uses one reference scaled by its weight.
+                        # Rescale by num_refs so effective injection strength ~ single-ref mode.
+                        robin_w = float(blend_weights[robin_ref]) * num_refs
+                        robin_start = target_bsz * (robin_ref + 1)
+                        robin_end = target_bsz * (robin_ref + 2)
+                        ref_k_blend = k[robin_start:robin_end, :, img_s:img_e, :] * scale_vec * robin_w
+                        ref_v_blend = v[robin_start:robin_end, :, img_s:img_e, :] * robin_w
+                    else:
+                        # Weighted sum: blended reference from shared effects pass.
+                        ref_k_blend = k_for_shared[target_bsz:, :, img_s:img_e, :] * scale_vec
+                        ref_v_blend = v_for_shared[target_bsz:, :, img_s:img_e, :]
+
+                    # Target attends to its own K/V plus reference K/V.
+                    k_t = torch.cat([k_for_shared[:target_bsz], ref_k_blend], dim=2)
+                    v_t = torch.cat([v_for_shared[:target_bsz], ref_v_blend], dim=2)
 
                     # If a mask is supplied (unexpected but guard for future compat),
                     # fall back to native attention to avoid shape mismatch.
@@ -468,6 +519,9 @@ def patch_attention_modules(
                         mask=None, skip_reshape=True,
                         transformer_options=transformer_options,
                     )
+
+                    # Run self-attention for each reference stream independently,
+                    # then apply shared output effects using the first reference.
                     out_r = optimized_attention_masked(
                         q[target_bsz:target_bsz * 2],
                         k[target_bsz:target_bsz * 2],
@@ -482,11 +536,27 @@ def patch_attention_modules(
                     )
 
                     outs = [out_t, out_r]
-                    if bsz > target_bsz * 2:
+
+                    # Additional reference streams (ref_1 through ref_{N-1}).
+                    for ref_i in range(1, num_refs):
+                        ref_start = target_bsz * (ref_i + 1)
+                        ref_end = target_bsz * (ref_i + 2)
+                        out_ref_i = optimized_attention_masked(
+                            q[ref_start:ref_end],
+                            k[ref_start:ref_end],
+                            v[ref_start:ref_end],
+                            q_heads, mask=None, skip_reshape=True,
+                            transformer_options=transformer_options,
+                        )
+                        outs.append(out_ref_i)
+
+                    # Extra batches beyond all reference streams (e.g. uncond).
+                    extra_start = target_bsz * (num_refs + 1)
+                    if bsz > extra_start:
                         out_extra = optimized_attention_masked(
-                            q[target_bsz * 2:],
-                            k[target_bsz * 2:],
-                            v[target_bsz * 2:],
+                            q[extra_start:],
+                            k[extra_start:],
+                            v[extra_start:],
                             q_heads, mask=None, skip_reshape=True,
                             transformer_options=transformer_options,
                         )
