@@ -1364,9 +1364,27 @@ class UntwistingRoPE:
                     'step': 0.01,
                     'tooltip': 'AdaIN aligns the target style statistics toward the reference.'
                 }),
+                'block_start': ('INT', {
+                    'default': 0,
+                    'min': 0,
+                    'max': 999,
+                    'step': 1,
+                    'tooltip': 'First block to patch (inclusive). Used when blocks string is empty.',
+                }),
+                'block_end': ('INT', {
+                    'default': 999,
+                    'min': 0,
+                    'max': 999,
+                    'step': 1,
+                    'tooltip': 'Last block to patch (inclusive). Used when blocks string is empty.',
+                }),
                 'blocks': ('STRING', {
-                    'default': '0-999',
-                    'tooltip': 'Specify block ranges to patch, e.g -> 0-8, 28-37'
+                    'default': '',
+                    'tooltip': (
+                        'Optional block range override, e.g. "7-27" or "0-8, 20-27". '
+                        'If non-empty, overrides block_start and block_end. '
+                        'If empty, block_start and block_end are used.'
+                    ),
                 }),
                 'verbose': ('BOOLEAN', {
                     'default': False,
@@ -1396,6 +1414,8 @@ class UntwistingRoPE:
         low_scale_end: float,
         blocks: str,
         adain_strength: float,
+        block_start: int = 0,
+        block_end: int = 999,
         verbose: bool = False,
         rf_inversion: Optional[Dict[str, Any]] = None,
         unofficial_extensions: Optional[Dict[str, Any]] = None,
@@ -1435,7 +1455,7 @@ class UntwistingRoPE:
         vp._vprint(stats, f'{vp._PREFIX} high_scale: {high_scale_start:.3f} → {high_scale_end:.3f}')
         vp._vprint(stats, f'{vp._PREFIX} low_scale:  {low_scale_start:.3f} → {low_scale_end:.3f}')
         vp._vprint(stats,
-            f'{vp._PREFIX} blocks: {blocks if blocks.strip() else "all"}  '
+            f'{vp._PREFIX} blocks: {blocks if blocks.strip() else f"{block_start}-{block_end}"}  '
             f'adain={adain_strength:.2f}  '
             f'unofficial: '
             f'cosine_gated_v_injection={cosine_gated_v_injection:.2f}  '
@@ -1500,7 +1520,11 @@ class UntwistingRoPE:
 
         old_wrapper = model_clone.model_options.get('model_function_wrapper', None)
 
-        parsed_blocks = _parse_active_blocks(blocks)
+        # Block range: string overrides ints if non-empty.
+        if blocks.strip():
+            parsed_blocks = _parse_active_blocks(blocks)
+        else:
+            parsed_blocks = set(range(int(block_start), int(block_end) + 1))
 
         # Multi-reference blend setup.
         # ref_clean_cpu may be [N, C, H, W] (4D) or [N, C, T, H, W] (5D video).
